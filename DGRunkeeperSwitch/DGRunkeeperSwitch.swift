@@ -55,9 +55,12 @@ open class DGRunkeeperSwitch: UIControl {
     
     fileprivate(set) open var selectedIndex: Int = 0
     
-    open var selectedBackgroundInset: CGFloat = 2.0 {
+    open var selectedBackgroundInset: CGFloat = 3.0 {
         didSet { setNeedsLayout() }
     }
+    
+    open var selectedBackgroundWidthAdjust: CGFloat = 12.0
+    open var selectedBackgroundXAdjust: CGFloat = 25.0
     
     @IBInspectable
     open var selectedBackgroundColor: UIColor! {
@@ -97,7 +100,7 @@ open class DGRunkeeperSwitch: UIControl {
     fileprivate var selectedTitleLabelsContentView = UIView()
     fileprivate var selectedTitleLabels = [UILabel]()
     
-    fileprivate(set) var selectedBackgroundView = UIView()
+    @objc dynamic fileprivate(set) var selectedBackgroundView = UIView()
     
     fileprivate var titleMaskView: UIView = UIView()
     
@@ -236,8 +239,13 @@ open class DGRunkeeperSwitch: UIControl {
     override open func layoutSubviews() {
         super.layoutSubviews()
         
-        let selectedBackgroundWidth = bounds.width / CGFloat(titleLabels.count) - selectedBackgroundInset * 2.0
+        let selectedBackgroundWidth = bounds.width / CGFloat(titleLabels.count) - selectedBackgroundInset * 2.0 + selectedBackgroundWidthAdjust
+        
         selectedBackgroundView.frame = CGRect(x: selectedBackgroundInset + CGFloat(selectedIndex) * (selectedBackgroundWidth + selectedBackgroundInset * 2.0), y: selectedBackgroundInset, width: selectedBackgroundWidth, height: bounds.height - selectedBackgroundInset * 2.0)
+        
+        if selectedIndex == 1 {
+            selectedBackgroundView.frame = CGRect(x: selectedBackgroundInset + CGFloat(selectedIndex) * (selectedBackgroundWidth + selectedBackgroundInset * 2.0) - selectedBackgroundXAdjust, y: selectedBackgroundInset, width: selectedBackgroundWidth, height: bounds.height - selectedBackgroundInset * 2.0)
+        }
         
         (titleLabelsContentView.frame, selectedTitleLabelsContentView.frame) = (bounds, bounds)
         
@@ -250,8 +258,15 @@ open class DGRunkeeperSwitch: UIControl {
             var size = label.sizeThatFits(CGSize(width: titleLabelMaxWidth, height: titleLabelMaxHeight))
             size.width = min(size.width, titleLabelMaxWidth)
           
-            let x = floor((bounds.width / CGFloat(titleLabels.count)) * CGFloat(index) + (bounds.width / CGFloat(titleLabels.count) - size.width) / 2.0)
+            var x = floor((bounds.width / CGFloat(titleLabels.count)) * CGFloat(index) + (bounds.width / CGFloat(titleLabels.count) - size.width) / 2.0)
             let y = floor((bounds.height - size.height) / 2.0)
+            
+            if index == 0 {
+                x += 3
+            } else {
+                x -= 3
+            }
+            
             let origin = CGPoint(x: x, y: y)
             
             let frame = CGRect(origin: origin, size: size)
